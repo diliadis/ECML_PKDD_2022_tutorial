@@ -15,7 +15,7 @@ def load_dataset(dataset_name, root_dir):
     return Y, X1, X2
 
 
-def get_mystery_dataset_v2(dataset_name, root_dir, mode=0):
+def get_mystery_dataset(dataset_name, root_dir, mode=0):
     valid_modes = [0, 1, 2]
     if mode not in valid_modes:
         raise AttributeError('Please use one of the valid modes: '+str(valid_modes))
