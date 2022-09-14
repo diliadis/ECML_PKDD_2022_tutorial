@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from sklearn.model_selection import train_test_split
 
 def load_dataset(dataset_name, root_dir):
@@ -15,44 +16,29 @@ def load_dataset(dataset_name, root_dir):
 
 
 # DP, only instance side-info, setting B
-def get_mystery_dataset_v1(dataset_name, root_dir):
-    # load the complete dataset
-    Y, X1, _ = load_dataset(dataset_name, root_dir)
+def get_mystery_dataset_v1(dataset_name, root_dir, mode=0):
+    valid_modes = [0, 1, 2]
+    if mode not in valid_modes:
+        raise AttributeError('Please use one of the valid modes: '+str(valid_modes))
 
-    triplets = [(i, j, Y[i, j]) for i in range(Y.shape[0]) for j in range(Y.shape[1])]
-
-    train_instance_ids, test_instance_ids = train_test_split(range(Y.shape[0]), test_size=0.25, shuffle=False, random_state=42)
-    
-    train_triplets = [i for i in triplets if i[0] in train_instance_ids]
-    test_triplets = [i for i in triplets if i[0] in test_instance_ids]
-    
-    return train_triplets, test_triplets, X1
-
-# DP, only instance side-info, setting B
-def get_mystery_dataset_v2(dataset_name, root_dir):
     # load the complete dataset
     Y, X1, X2 = load_dataset(dataset_name, root_dir)
 
     triplets = [(i, j, Y[i, j]) for i in range(Y.shape[0]) for j in range(Y.shape[1])]
+    if mode in [0, 1]:
+        train_instance_ids, test_instance_ids = train_test_split(range(Y.shape[0]), test_size=0.25, shuffle=False, random_state=42)
+        train_triplets = [i for i in triplets if i[0] in train_instance_ids]
+        test_triplets = [i for i in triplets if i[0] in test_instance_ids]
 
-    train_instance_ids, test_instance_ids = train_test_split(range(Y.shape[0]), test_size=0.25, shuffle=False, random_state=42)
-    
-    train_triplets = [i for i in triplets if i[0] in train_instance_ids]
-    test_triplets = [i for i in triplets if i[0] in test_instance_ids]
-    
-    return train_triplets, test_triplets, X1, X2
-
-# DP, only instance side-info, setting B
-def get_mystery_dataset_v3(dataset_name, root_dir):
-    # load the complete dataset
-    Y, X1, X2 = load_dataset(dataset_name, root_dir)
-
-    triplets = [(i, j, Y[i, j]) for i in range(Y.shape[0]) for j in range(Y.shape[1])]
-
-    train_instance_ids, test_instance_ids = train_test_split(range(Y.shape[0]), test_size=0.25, shuffle=False, random_state=42)
-    train_target_ids, test_target_ids = train_test_split(range(Y.shape[1]), test_size=0.25, shuffle=False, random_state=42)
-    
-    train_triplets = [i for i in triplets if i[0] in train_instance_ids and i[1] in train_target_ids]
-    test_triplets = [i for i in triplets if i[0] in test_instance_ids and i[1] in test_target_ids]
-    
-    return train_triplets, test_triplets, X1, X2
+        train_df = pd.DataFrame(train_triplets, columns =['instance_id', 'target_id', 'value'])
+        test_df = pd.DataFrame(test_triplets, columns =['instance_id', 'target_id', 'value'])
+    else:
+        train_instance_ids, test_instance_ids = train_test_split(range(Y.shape[0]), test_size=0.25, shuffle=False, random_state=42)
+        train_target_ids, test_target_ids = train_test_split(range(Y.shape[1]), test_size=0.25, shuffle=False, random_state=42)    
+        train_triplets = [i for i in triplets if i[0] in train_instance_ids and i[1] in train_target_ids]
+        test_triplets = [i for i in triplets if i[0] in test_instance_ids and i[1] in test_target_ids]      
+          
+    if mode == 0:
+        return train_df, test_df, X1
+    else:
+        return train_df, test_df, X1, X2
