@@ -15,8 +15,7 @@ def load_dataset(dataset_name, root_dir):
     return Y, X1, X2
 
 
-# DP, only instance side-info, setting B
-def get_mystery_dataset_v1(dataset_name, root_dir, mode=0):
+def get_mystery_dataset(dataset_name, root_dir, mode=0):
     valid_modes = [0, 1, 2]
     if mode not in valid_modes:
         raise AttributeError('Please use one of the valid modes: '+str(valid_modes))
@@ -37,7 +36,7 @@ def get_mystery_dataset_v1(dataset_name, root_dir, mode=0):
         train_target_ids, test_target_ids = train_test_split(range(Y.shape[1]), test_size=0.25, shuffle=False, random_state=42)    
         train_triplets = [i for i in triplets if i[0] in train_instance_ids and i[1] in train_target_ids]
         test_triplets = [i for i in triplets if i[0] in test_instance_ids and i[1] in test_target_ids]      
-          
+
     if mode == 0:
         return train_df, test_df, X1
     else:
